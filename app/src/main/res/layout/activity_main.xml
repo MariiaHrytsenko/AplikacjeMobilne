@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Database Test"
+            android:textSize="18sp"
+            android:layout_gravity="center_horizontal"
+            android:paddingBottom="8dp" />
+
+        <EditText
+            android:id="@+id/editTextLanguageCode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Language Code (e.g., EN)" />
+
+        <EditText
+            android:id="@+id/editTextLanguageName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Language Name (e.g., English)" />
+
+        <Button
+            android:id="@+id/buttonAddLanguage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add Language"
+            android:layout_gravity="center_horizontal" />
+
+        <TextView
+            android:id="@+id/textViewOutput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Output will appear here."
+            android:textSize="16sp"
+            android:paddingTop="16dp" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
