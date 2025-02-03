@@ -1,5 +1,6 @@
 package com.example.aplikacjemobilne.repository
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.aplikacjemobilne.R
 import com.example.aplikacjemobilne.data.AppDatabase
 import com.example.aplikacjemobilne.data.TaskResult
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -23,6 +30,7 @@ class ResultsHistoryActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var spinnerTaskFilter: Spinner
     private lateinit var buttonBack: Button
+    private lateinit var lineChart: LineChart
     private lateinit var adapter: ResultsAdapter
     private var currentFilter: Int = 0 // 0 means all tasks
 
@@ -35,6 +43,7 @@ class ResultsHistoryActivity : AppCompatActivity() {
         initializeViews()
         setupSpinner()
         setupRecyclerView()
+        setupChart()
         loadResults()
     }
 
@@ -42,6 +51,7 @@ class ResultsHistoryActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.recyclerViewResults)
         spinnerTaskFilter = findViewById(R.id.spinnerTaskFilter)
         buttonBack = findViewById(R.id.buttonBack)
+        lineChart = findViewById(R.id.lineChart)
 
         buttonBack.setOnClickListener {
             finish()
@@ -70,6 +80,68 @@ class ResultsHistoryActivity : AppCompatActivity() {
         recyclerView.adapter = adapter
     }
 
+    private fun setupChart() {
+        lineChart.apply {
+            description.isEnabled = false
+            setTouchEnabled(true)
+            setPinchZoom(true)
+            setDrawGridBackground(false)
+            
+            xAxis.apply {
+                position = XAxis.XAxisPosition.BOTTOM
+                setDrawGridLines(false)
+                granularity = 1f
+            }
+            
+            axisLeft.apply {
+                setDrawGridLines(true)
+                axisMinimum = 0f
+                axisMaximum = 100f
+            }
+            
+            axisRight.isEnabled = false
+            legend.isEnabled = true
+        }
+    }
+
+    private fun updateChart(results: List<TaskResult>) {
+        if (results.isEmpty()) {
+            lineChart.clear()
+            return
+        }
+
+        val entries = results.mapIndexed { index, result ->
+            val accuracy = if (result.totalQuestions > 0) {
+                (result.correctAnswers.toFloat() / result.totalQuestions * 100)
+            } else {
+                0f
+            }
+            Entry(index.toFloat(), accuracy)
+        }
+
+        val dates = results.map { result ->
+            val dateFormat = SimpleDateFormat("MM-dd", Locale.getDefault())
+            dateFormat.format(Date(result.date))
+        }
+
+        val dataSet = LineDataSet(entries, "Accuracy %").apply {
+            color = Color.rgb(65, 105, 225) // Royal Blue
+            setCircleColor(Color.rgb(65, 105, 225))
+            lineWidth = 2f
+            circleRadius = 4f
+            setDrawValues(false)
+            mode = LineDataSet.Mode.CUBIC_BEZIER
+        }
+
+        lineChart.apply {
+            data = LineData(dataSet)
+            xAxis.valueFormatter = IndexAxisValueFormatter(dates)
+            xAxis.labelRotationAngle = -45f
+            notifyDataSetChanged()
+            invalidate()
+        }
+    }
+
     private fun loadResults() {
         CoroutineScope(Dispatchers.IO).launch {
             val results = if (currentFilter == 0) {
@@ -80,6 +152,7 @@ class ResultsHistoryActivity : AppCompatActivity() {
 
             withContext(Dispatchers.Main) {
                 adapter.submitList(results)
+                updateChart(results)
             }
         }
     }
