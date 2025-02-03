@@ -297,12 +297,13 @@ class Task3Activity : AppCompatActivity() {
                         val allWords = database.wordDao().getAllWords()
                         val allTranslations = database.translationDao().getAllTranslations()
                         
-                        val wordsInTargetLanguage = allWords.filter { it.languageCode == targetLanguageCode }
-                        
-                        val wordsWithTranslations = wordsInTargetLanguage.map { sourceWord ->
+                        // Get words in target language and check translations in both directions
+                        val wordsWithTranslations = allWords.filter { word ->
+                            word.languageCode == targetLanguageCode
+                        }.map { sourceWord ->
                             val translationIds = allTranslations
-                                .filter { it.wordId == sourceWord.id }
-                                .map { it.translatedWordId }
+                                .filter { it.wordId == sourceWord.id || it.translatedWordId == sourceWord.id }
+                                .map { if (it.wordId == sourceWord.id) it.translatedWordId else it.wordId }
                             
                             val translations = allWords.filter { word -> 
                                 word.id in translationIds && word.languageCode == sourceLanguageCode
@@ -374,12 +375,13 @@ class Task3Activity : AppCompatActivity() {
                 val allWords = database.wordDao().getAllWords()
                 val allTranslations = database.translationDao().getAllTranslations()
                 
-                val wordsInSelectedLanguage = allWords.filter { it.languageCode == selectedLanguageCode }
-                
-                availableWords = wordsInSelectedLanguage.map { sourceWord ->
+                // Get all word pairs that have translations between selected languages
+                val wordsWithTranslations = allWords.filter { word ->
+                    word.languageCode == selectedLanguageCode
+                }.map { sourceWord ->
                     val translationIds = allTranslations
-                        .filter { it.wordId == sourceWord.id }
-                        .map { it.translatedWordId }
+                        .filter { it.wordId == sourceWord.id || it.translatedWordId == sourceWord.id }
+                        .map { if (it.wordId == sourceWord.id) it.translatedWordId else it.wordId }
                     
                     val translations = allWords.filter { word -> 
                         word.id in translationIds && word.languageCode == selectedSourceLanguageCode
@@ -388,6 +390,8 @@ class Task3Activity : AppCompatActivity() {
                     WordWithTranslations(sourceWord, translations)
                 }.filter { it.translations.isNotEmpty() }
 
+                availableWords = wordsWithTranslations.shuffled()
+                
                 withContext(Dispatchers.Main) {
                     questionIndex = 0
                     loadWordAndTranslations()
