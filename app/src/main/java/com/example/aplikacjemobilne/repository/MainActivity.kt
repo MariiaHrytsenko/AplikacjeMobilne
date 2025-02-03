@@ -18,6 +18,7 @@ class MainActivity : AppCompatActivity() {
         val buttonAddWordActivity = findViewById<Button>(R.id.buttonAddWordActivity)
         val buttonAddLanguageActivity = findViewById<Button>(R.id.buttonAddLanguageActivity)
         val buttonWordList = findViewById<Button>(R.id.buttonWordList)
+        val buttonViewHistory = findViewById<Button>(R.id.buttonViewHistory)
 
         buttonTask1.setOnClickListener {
             val intent = Intent(this, Task1Activity::class.java)
@@ -45,8 +46,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         buttonWordList.setOnClickListener {
-            val intent = Intent(this, WordListActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, WordListActivity::class.java))
+        }
+
+        buttonViewHistory.setOnClickListener {
+            startActivity(Intent(this, ResultsHistoryActivity::class.java))
         }
     }
 }

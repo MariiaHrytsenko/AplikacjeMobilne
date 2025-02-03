@@ -470,6 +470,7 @@ class Task3Activity : AppCompatActivity() {
 
     private fun showResults() {
         val intent = Intent(this, ResultsActivity::class.java)
+        intent.putExtra("taskNumber", 3)
         startActivity(intent)
         finish()
     }

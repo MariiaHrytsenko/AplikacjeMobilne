@@ -6,8 +6,8 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [Language::class, Word::class, Translation::class, LearningSet::class, LearningStatistic::class],
-    version = 1,
+    entities = [Language::class, Word::class, Translation::class, LearningSet::class, LearningStatistic::class, TaskResult::class],
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -16,6 +16,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun translationDao(): TranslationDao
     abstract fun learningSetDao(): LearningSetDao
     abstract fun learningStatisticDao(): LearningStatisticDao
+    abstract fun taskResultDao(): TaskResultDao
 
     companion object {
         @Volatile
@@ -27,7 +28,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "language_learning_database"
-                ).build()
+                )
+                .fallbackToDestructiveMigration()
+                .build()
                 INSTANCE = instance
                 instance
             }

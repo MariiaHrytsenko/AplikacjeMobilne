@@ -401,6 +401,7 @@ class Task1Activity : AppCompatActivity() {
 
     private fun showResults() {
         val intent = Intent(this, ResultsActivity::class.java)
+        intent.putExtra("taskNumber", 1)
         startActivity(intent)
         finish()
     }

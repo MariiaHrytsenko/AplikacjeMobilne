@@ -58,22 +58,42 @@
 
     </androidx.cardview.widget.CardView>
 
-    <!-- Przycisk powrotu do menu -->
-    <Button
-        android:id="@+id/buttonBackToMenu"
+    <!-- Przyciski -->
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Back to Menu"
-        android:textSize="18sp"
-        android:textAllCaps="false"
-        android:textColor="@android:color/white"
-        android:backgroundTint="@android:color/holo_blue_dark"
-        android:padding="16dp"
-        android:elevation="4dp"
+        android:orientation="vertical"
         android:layout_marginHorizontal="32dp"
         android:layout_marginBottom="32dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <Button
+            android:id="@+id/buttonViewHistory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="View History"
+            android:textSize="18sp"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:backgroundTint="@android:color/holo_green_dark"
+            android:padding="16dp"
+            android:elevation="4dp"
+            android:layout_marginBottom="16dp"/>
+
+        <Button
+            android:id="@+id/buttonBackToMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Back to Menu"
+            android:textSize="18sp"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:backgroundTint="@android:color/holo_blue_dark"
+            android:padding="16dp"
+            android:elevation="4dp"/>
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

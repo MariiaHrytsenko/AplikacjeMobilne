@@ -7,16 +7,23 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.example.aplikacjemobilne.R
+import com.example.aplikacjemobilne.data.AppDatabase
+import com.example.aplikacjemobilne.data.TaskResult
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.PercentFormatter
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class ResultsActivity : AppCompatActivity() {
 
     private lateinit var pieChart: PieChart
     private lateinit var buttonBackToMenu: Button
+    private lateinit var buttonViewHistory: Button
+    private lateinit var database: AppDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,16 +32,24 @@ class ResultsActivity : AppCompatActivity() {
         // Inicjalizacja widoków
         pieChart = findViewById(R.id.pieChart)
         buttonBackToMenu = findViewById(R.id.buttonBackToMenu)
+        buttonViewHistory = findViewById(R.id.buttonViewHistory)
+        database = AppDatabase.getDatabase(this)
 
         setupPieChart()
         updateChartData()
+        saveResults()
 
-        // Obsługa kliknięcia przycisku "Back to Menu"
+        // Obsługa przycisków
         buttonBackToMenu.setOnClickListener {
             ResultsManager.resetResults()
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
             finish()
+        }
+
+        buttonViewHistory.setOnClickListener {
+            val intent = Intent(this, ResultsHistoryActivity::class.java)
+            startActivity(intent)
         }
     }
 
@@ -108,6 +123,24 @@ class ResultsActivity : AppCompatActivity() {
             setCenterTextTypeface(Typeface.DEFAULT_BOLD)
             setCenterTextColor(Color.rgb(47, 79, 79))  // Ciemny niebieskozielony
             invalidate()
+        }
+    }
+
+    private fun saveResults() {
+        val correctAnswers = ResultsManager.getCorrectAnswers()
+        val wrongAnswers = ResultsManager.getWrongAnswers()
+        val total = correctAnswers + wrongAnswers
+        val taskNumber = intent.getIntExtra("taskNumber", 1)
+
+        val taskResult = TaskResult(
+            taskNumber = taskNumber,
+            correctAnswers = correctAnswers,
+            wrongAnswers = wrongAnswers,
+            totalQuestions = total
+        )
+
+        CoroutineScope(Dispatchers.IO).launch {
+            database.taskResultDao().insertTaskResult(taskResult)
         }
     }
 }

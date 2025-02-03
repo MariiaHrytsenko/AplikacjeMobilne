@@ -363,6 +363,7 @@ class Task2Activity : AppCompatActivity() {
 
     private fun showResults() {
         val intent = Intent(this, ResultsActivity::class.java)
+        intent.putExtra("taskNumber", 2)
         startActivity(intent)
         finish()
     }
