@@ -28,10 +28,11 @@
         android:id="@+id/editTextLanguageCode"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:hint="Language Code (e.g., EN)"
-        android:inputType="text"
+        android:hint="Language code (e.g. EN, PL)"
+        android:inputType="textCapCharacters"
+        android:maxLength="2"
         android:padding="12dp"
+        android:layout_marginTop="32dp"
         android:background="@android:drawable/editbox_background"
         app:layout_constraintTop_toBottomOf="@id/textViewTitle"
         app:layout_constraintStart_toStartOf="parent"
@@ -42,10 +43,10 @@
         android:id="@+id/editTextLanguageName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:hint="Language Name (e.g., English)"
-        android:inputType="text"
+        android:hint="Language name (e.g. English, Polish)"
+        android:inputType="textCapWords"
         android:padding="12dp"
+        android:layout_marginTop="16dp"
         android:background="@android:drawable/editbox_background"
         app:layout_constraintTop_toBottomOf="@id/editTextLanguageCode"
         app:layout_constraintStart_toStartOf="parent"
@@ -54,30 +55,14 @@
     <!-- Przycisk dodawania języka -->
     <Button
         android:id="@+id/buttonAddLanguage"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:backgroundTint="@android:color/holo_green_dark"
         android:text="Add Language"
         android:textColor="@android:color/white"
-        android:textSize="16sp"
+        android:backgroundTint="@android:color/holo_green_dark"
+        android:layout_marginTop="24dp"
         app:layout_constraintTop_toBottomOf="@id/editTextLanguageName"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="32dp"/>
-
-    <!-- Wynik -->
-    <TextView
-        android:id="@+id/textViewOutput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="16dp"
-        android:text="Output will appear here."
-        android:textAlignment="center"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/buttonAddLanguage"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
