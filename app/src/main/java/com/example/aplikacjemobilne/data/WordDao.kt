@@ -18,4 +18,7 @@ interface WordDao {
 
     @Delete
     suspend fun delete(word: Word)
+
+    @Query("SELECT * FROM Word WHERE languageCode = :languageCode")
+    suspend fun getWordsForLanguage(languageCode: String): List<Word>
 }

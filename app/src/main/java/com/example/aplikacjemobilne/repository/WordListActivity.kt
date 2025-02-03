@@ -1,5 +1,7 @@
 package com.example.aplikacjemobilne.repository
 
+import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -10,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.aplikacjemobilne.R
 import com.example.aplikacjemobilne.data.AppDatabase
 import com.example.aplikacjemobilne.data.Language
+import com.example.aplikacjemobilne.data.Translation
+import com.example.aplikacjemobilne.data.Word
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -50,12 +54,29 @@ class WordListActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Odśwież listę po powrocie z edycji
+        loadLanguagesAndWords()
+    }
+
     private fun setupRecyclerView() {
         try {
             recyclerView = findViewById(R.id.recyclerViewWords)
             Log.d(TAG, "Found RecyclerView")
             
-            adapter = WordListAdapter()
+            adapter = WordListAdapter(
+                onEditClick = { wordWithTranslations ->
+                    val intent = Intent(this, EditWordActivity::class.java).apply {
+                        putExtra(EditWordActivity.EXTRA_SOURCE_WORD_ID, wordWithTranslations.sourceWord.id)
+                        putExtra(EditWordActivity.EXTRA_TARGET_WORD_ID, wordWithTranslations.translations[0].id)
+                    }
+                    startActivity(intent)
+                },
+                onDeleteClick = { wordWithTranslations ->
+                    showDeleteConfirmationDialog(wordWithTranslations)
+                }
+            )
             Log.d(TAG, "Created adapter")
             
             recyclerView.apply {
@@ -162,5 +183,51 @@ class WordListActivity : AppCompatActivity() {
             adapter.setWords(filteredWords)
             Log.d(TAG, "Displayed ${filteredWords.size} words for language: $selectedLanguageCode")
         }
+    }
+
+    private fun showDeleteConfirmationDialog(wordWithTranslations: WordListAdapter.WordWithTranslations) {
+        AlertDialog.Builder(this)
+            .setTitle("Delete Word")
+            .setMessage("Are you sure you want to delete '${wordWithTranslations.sourceWord.word}' and all its translations?")
+            .setPositiveButton("Delete") { _, _ ->
+                deleteWord(wordWithTranslations)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun deleteWord(wordWithTranslations: WordListAdapter.WordWithTranslations) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                // Delete translations first
+                database.translationDao().deleteTranslationsForWord(wordWithTranslations.sourceWord.id)
+                
+                // Delete the source word and its translations
+                database.wordDao().delete(wordWithTranslations.sourceWord)
+                wordWithTranslations.translations.forEach { translation ->
+                    database.wordDao().delete(translation)
+                }
+
+                withContext(Dispatchers.Main) {
+                    adapter.removeWord(wordWithTranslations)
+                    Toast.makeText(this@WordListActivity, "Word deleted successfully", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Log.e("WordListActivity", "Error deleting word", e)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@WordListActivity, "Error deleting word", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun Spinner.setOnItemSelectedListener(onItemSelected: (Int) -> Unit) {
+        this.setOnItemSelectedListener(object : android.widget.AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
+                onItemSelected(position)
+            }
+
+            override fun onNothingSelected(parent: android.widget.AdapterView<*>?) {}
+        })
     }
 } 

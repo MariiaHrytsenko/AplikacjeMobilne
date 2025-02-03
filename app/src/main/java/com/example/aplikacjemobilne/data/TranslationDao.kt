@@ -12,4 +12,7 @@ interface TranslationDao {
 
     @Delete
     suspend fun delete(translation: Translation)
+
+    @Query("DELETE FROM translation WHERE wordId = :wordId OR translatedWordId = :wordId")
+    fun deleteTranslationsForWord(wordId: Int)
 }

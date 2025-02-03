@@ -126,63 +126,28 @@ class AddWordActivity : AppCompatActivity() {
             return
         }
 
-        // Sprawdź czy tłumaczenie w tym języku już istnieje w aktualnej sesji
+        // Sprawdź czy dokładnie ta sama kombinacja słowa źródłowego i tłumaczenia już istnieje
         val existingTranslations = translationAdapter.getTranslations()
-        if (existingTranslations.any { it.targetLanguage == targetLanguage.name }) {
-            Toast.makeText(this, "Translation in ${targetLanguage.name} already exists in current session!", Toast.LENGTH_SHORT).show()
+        if (existingTranslations.any { 
+            it.sourceWord == sourceWord && 
+            it.targetWord == targetWord && 
+            it.sourceLanguage == sourceLanguage.name && 
+            it.targetLanguage == targetLanguage.name 
+        }) {
+            Toast.makeText(this, "This translation already exists in current session!", Toast.LENGTH_SHORT).show()
             return
         }
 
-        // Sprawdź czy słowo lub tłumaczenie już istnieje w bazie
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val allWords = database.wordDao().getAllWords()
-                
-                // Sprawdź słowo źródłowe
-                val sourceWordExists = allWords.any { 
-                    it.word.equals(sourceWord, ignoreCase = true) && 
-                    it.languageCode == sourceLanguage.code 
-                }
-                
-                // Sprawdź tłumaczenie
-                val targetWordExists = allWords.any { 
-                    it.word.equals(targetWord, ignoreCase = true) && 
-                    it.languageCode == targetLanguage.code 
-                }
-
-                withContext(Dispatchers.Main) {
-                    when {
-                        sourceWordExists -> {
-                            Toast.makeText(this@AddWordActivity, 
-                                "Word '$sourceWord' already exists in ${sourceLanguage.name}!", 
-                                Toast.LENGTH_SHORT).show()
-                        }
-                        targetWordExists -> {
-                            Toast.makeText(this@AddWordActivity, 
-                                "Word '$targetWord' already exists in ${targetLanguage.name}!", 
-                                Toast.LENGTH_SHORT).show()
-                        }
-                        else -> {
-                            // Dodaj tłumaczenie tylko jeśli nie istnieje w bazie
-                            translationAdapter.addTranslation(
-                                TranslationAdapter.TranslationItem(
-                                    sourceLanguage = sourceLanguage.name,
-                                    targetLanguage = targetLanguage.name,
-                                    sourceWord = sourceWord,
-                                    targetWord = targetWord
-                                )
-                            )
-                            editTextTranslation.text.clear()
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error checking for duplicates", e)
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(this@AddWordActivity, "Error checking database", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
+        // Dodaj tłumaczenie do listy
+        translationAdapter.addTranslation(
+            TranslationAdapter.TranslationItem(
+                sourceLanguage = sourceLanguage.name,
+                targetLanguage = targetLanguage.name,
+                sourceWord = sourceWord,
+                targetWord = targetWord
+            )
+        )
+        editTextTranslation.text.clear()
     }
 
     private fun saveWordWithTranslations() {
@@ -194,28 +159,30 @@ class AddWordActivity : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Sprawdź jeszcze raz przed zapisem czy słowa nie zostały dodane w międzyczasie
+                // Sprawdź przed zapisem czy słowa nie zostały dodane w międzyczasie
                 val allWords = database.wordDao().getAllWords()
-                val sourceLanguage = languages[spinnerSourceLanguage.selectedItemPosition]
                 
-                // Sprawdź słowo źródłowe
-                val sourceWordExists = allWords.any { 
-                    it.word.equals(translations[0].sourceWord, ignoreCase = true) && 
-                    it.languageCode == sourceLanguage.code 
-                }
-
-                if (sourceWordExists) {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(this@AddWordActivity, 
-                            "Word '${translations[0].sourceWord}' was added by someone else in the meantime!", 
-                            Toast.LENGTH_SHORT).show()
-                    }
-                    return@launch
-                }
-
-                // Sprawdź tłumaczenia
+                // Sprawdź wszystkie słowa przed zapisem
                 for (translation in translations) {
+                    val sourceLanguage = languages.first { it.name == translation.sourceLanguage }
                     val targetLanguage = languages.first { it.name == translation.targetLanguage }
+
+                    // Sprawdź słowo źródłowe
+                    val sourceWordExists = allWords.any { 
+                        it.word.equals(translation.sourceWord, ignoreCase = true) && 
+                        it.languageCode == sourceLanguage.code 
+                    }
+
+                    if (sourceWordExists) {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(this@AddWordActivity, 
+                                "Word '${translation.sourceWord}' already exists in ${sourceLanguage.name}!", 
+                                Toast.LENGTH_SHORT).show()
+                        }
+                        return@launch
+                    }
+
+                    // Sprawdź tłumaczenie
                     val targetWordExists = allWords.any { 
                         it.word.equals(translation.targetWord, ignoreCase = true) && 
                         it.languageCode == targetLanguage.code 
@@ -224,23 +191,26 @@ class AddWordActivity : AppCompatActivity() {
                     if (targetWordExists) {
                         withContext(Dispatchers.Main) {
                             Toast.makeText(this@AddWordActivity, 
-                                "Translation '${translation.targetWord}' was added by someone else in the meantime!", 
+                                "Translation '${translation.targetWord}' already exists in ${targetLanguage.name}!", 
                                 Toast.LENGTH_SHORT).show()
                         }
                         return@launch
                     }
                 }
 
-                // Jeśli wszystko OK, zapisz słowo źródłowe
-                val sourceWord = Word(
-                    word = translations[0].sourceWord,
-                    languageCode = sourceLanguage.code
-                )
-                val sourceWordId = database.wordDao().insert(sourceWord)
-
-                // Zapisz wszystkie tłumaczenia
+                // Jeśli wszystko OK, zapisz każde tłumaczenie osobno
                 for (translationItem in translations) {
+                    val sourceLanguage = languages.first { it.name == translationItem.sourceLanguage }
                     val targetLanguage = languages.first { it.name == translationItem.targetLanguage }
+
+                    // Zapisz słowo źródłowe
+                    val sourceWord = Word(
+                        word = translationItem.sourceWord,
+                        languageCode = sourceLanguage.code
+                    )
+                    val sourceWordId = database.wordDao().insert(sourceWord)
+
+                    // Zapisz słowo docelowe
                     val targetWord = Word(
                         word = translationItem.targetWord,
                         languageCode = targetLanguage.code
@@ -256,13 +226,13 @@ class AddWordActivity : AppCompatActivity() {
                 }
 
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@AddWordActivity, "Word and translations saved successfully", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@AddWordActivity, "All translations saved successfully!", Toast.LENGTH_SHORT).show()
                     finish()
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Error saving word and translations", e)
+                Log.e(TAG, "Error saving translations", e)
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@AddWordActivity, "Error saving data", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@AddWordActivity, "Error saving translations", Toast.LENGTH_SHORT).show()
                 }
             }
         }
