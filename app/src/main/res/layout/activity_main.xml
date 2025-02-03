@@ -84,6 +84,20 @@
             android:backgroundTint="@android:color/holo_green_light"
             android:textColor="@android:color/white"
             android:layout_marginTop="10dp" />
+
+        <Button
+            android:id="@+id/buttonWordList"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="View Word List"
+            android:textSize="16sp"
+            android:backgroundTint="@android:color/holo_green_light"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            app:layout_constraintTop_toBottomOf="@id/buttonAddLanguageActivity"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

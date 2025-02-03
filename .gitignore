@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+CHANGELOG.md
+gradle.properties
+gradle.properties

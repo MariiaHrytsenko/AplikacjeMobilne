@@ -5,7 +5,7 @@ import androidx.room.*
 @Dao
 interface WordDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(word: Word)
+    suspend fun insert(word: Word): Long
 
     @Query("SELECT * FROM Word")
     suspend fun getAllWords(): List<Word>

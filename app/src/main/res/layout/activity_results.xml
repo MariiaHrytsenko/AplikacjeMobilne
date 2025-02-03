@@ -4,61 +4,75 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/white"
     tools:context=".ResultsActivity"
     android:padding="16dp">
 
-    <!-- Заголовок результатів -->
+    <!-- Nagłówek wyników -->
     <TextView
         android:id="@+id/textViewTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Test Results"
-        android:textSize="24sp"
+        android:text="Your Results"
+        android:textSize="28sp"
         android:textStyle="bold"
         android:fontFamily="sans-serif-medium"
         android:textColor="@android:color/holo_blue_dark"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="40dp" />
+        android:layout_marginTop="32dp" />
 
-    <!-- Пояснювальний текст -->
+    <!-- Opis -->
     <TextView
         android:id="@+id/textViewDescription"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Here is your performance in the test:"
-        android:textSize="16sp"
+        android:text="Here's how you performed:"
+        android:textSize="18sp"
         android:textAlignment="center"
+        android:textColor="@android:color/darker_gray"
         app:layout_constraintTop_toBottomOf="@id/textViewTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="8dp" />
 
-    <!--Pie Chart -->
-    <com.github.mikephil.charting.charts.PieChart
-        android:id="@+id/pieChart"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
-        android:background="@android:color/white"
-        android:elevation="8dp"
+    <!-- Kontener na wykres -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/chartContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginHorizontal="16dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp"
         app:layout_constraintTop_toBottomOf="@id/textViewDescription"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="20dp" />
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- Кнопка для повернення до головного меню -->
+        <com.github.mikephil.charting.charts.PieChart
+            android:id="@+id/pieChart"
+            android:layout_width="match_parent"
+            android:layout_height="350dp"
+            android:padding="16dp"/>
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- Przycisk powrotu do menu -->
     <Button
         android:id="@+id/buttonBackToMenu"
-        android:layout_width="200dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Back to Menu"
-        android:textSize="16sp"
+        android:textSize="18sp"
+        android:textAllCaps="false"
         android:textColor="@android:color/white"
-        android:backgroundTint="@android:color/holo_green_dark"
-        android:elevation="6dp"
-        android:layout_marginTop="24dp"
-        app:layout_constraintTop_toBottomOf="@id/pieChart"
+        android:backgroundTint="@android:color/holo_blue_dark"
+        android:padding="16dp"
+        android:elevation="4dp"
+        android:layout_marginHorizontal="32dp"
+        android:layout_marginBottom="32dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

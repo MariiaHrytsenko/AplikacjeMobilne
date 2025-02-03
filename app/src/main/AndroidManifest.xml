@@ -29,6 +29,7 @@
         <activity android:name=".repository.AddLanguageActivity" android:exported="true"/>
         <activity android:name=".repository.AddWordActivity" android:exported="true"/>
         <activity android:name=".repository.ResultsActivity"></activity>
+        <activity android:name=".repository.WordListActivity" />
 
     </application>
 

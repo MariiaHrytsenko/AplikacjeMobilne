@@ -1,6 +1,8 @@
 package com.example.aplikacjemobilne.repository
 
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
@@ -9,7 +11,7 @@ import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
-import com.github.mikephil.charting.utils.ColorTemplate
+import com.github.mikephil.charting.formatter.PercentFormatter
 
 class ResultsActivity : AppCompatActivity() {
 
@@ -24,26 +26,8 @@ class ResultsActivity : AppCompatActivity() {
         pieChart = findViewById(R.id.pieChart)
         buttonBackToMenu = findViewById(R.id.buttonBackToMenu)
 
-        // Pobieranie danych z ResultsManager
-        val correctAnswers = ResultsManager.getCorrectAnswers()
-        val wrongAnswers = ResultsManager.getWrongAnswers()
-
-        // Przygotowanie danych do wykresu kołowego
-        val pieEntries = listOf(
-            PieEntry(correctAnswers.toFloat(), "Correct"),
-            PieEntry(wrongAnswers.toFloat(), "Incorrect")
-        )
-
-        // Tworzenie zestawu danych do wykresu
-        val pieDataSet = PieDataSet(pieEntries, "Results")
-        pieDataSet.colors = ColorTemplate.MATERIAL_COLORS.toList()
-        val pieData = PieData(pieDataSet)
-
-        pieChart.data = pieData
-        pieChart.centerText = "${(correctAnswers * 100) / (correctAnswers + wrongAnswers)}% Correct"
-        pieChart.setCenterTextSize(20f)
-        pieChart.invalidate()
-        pieChart.setDrawHoleEnabled(false)
+        setupPieChart()
+        updateChartData()
 
         // Obsługa kliknięcia przycisku "Back to Menu"
         buttonBackToMenu.setOnClickListener {
@@ -51,6 +35,79 @@ class ResultsActivity : AppCompatActivity() {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
             finish()
+        }
+    }
+
+    private fun setupPieChart() {
+        pieChart.apply {
+            // Wygląd wykresu
+            setUsePercentValues(true)
+            description.isEnabled = false
+            isDrawHoleEnabled = true
+            setHoleColor(Color.WHITE)
+            holeRadius = 58f
+            transparentCircleRadius = 61f
+            setDrawCenterText(true)
+            rotationAngle = 0f
+            isRotationEnabled = true
+            isHighlightPerTapEnabled = true
+            setDrawEntryLabels(false)
+
+            // Animacja
+            animateY(1400)
+
+            // Legenda
+            legend.apply {
+                isEnabled = true
+                verticalAlignment = com.github.mikephil.charting.components.Legend.LegendVerticalAlignment.TOP
+                horizontalAlignment = com.github.mikephil.charting.components.Legend.LegendHorizontalAlignment.RIGHT
+                orientation = com.github.mikephil.charting.components.Legend.LegendOrientation.VERTICAL
+                setDrawInside(false)
+                textSize = 14f
+                formSize = 16f
+                xEntrySpace = 8f
+                yEntrySpace = 4f
+            }
+        }
+    }
+
+    private fun updateChartData() {
+        val correctAnswers = ResultsManager.getCorrectAnswers()
+        val wrongAnswers = ResultsManager.getWrongAnswers()
+        val total = correctAnswers + wrongAnswers
+        val correctPercentage = if (total > 0) (correctAnswers * 100f) / total else 0f
+
+        // Przygotowanie danych
+        val entries = listOf(
+            PieEntry(correctAnswers.toFloat(), "Correct"),
+            PieEntry(wrongAnswers.toFloat(), "Incorrect")
+        )
+
+        // Kolory
+        val colors = listOf(
+            Color.rgb(76, 175, 80),  // Zielony dla poprawnych
+            Color.rgb(244, 67, 54)    // Czerwony dla niepoprawnych
+        )
+
+        // Tworzenie zestawu danych
+        val dataSet = PieDataSet(entries, "").apply {
+            this.colors = colors
+            sliceSpace = 3f
+            selectionShift = 5f
+            valueTextSize = 14f
+            valueTypeface = Typeface.DEFAULT_BOLD
+            valueTextColor = Color.WHITE
+            valueFormatter = PercentFormatter(pieChart)
+        }
+
+        // Ustawienie danych
+        pieChart.apply {
+            data = PieData(dataSet)
+            centerText = String.format("%.1f%%\nCorrect", correctPercentage)
+            setCenterTextSize(20f)
+            setCenterTextTypeface(Typeface.DEFAULT_BOLD)
+            setCenterTextColor(Color.rgb(47, 79, 79))  // Ciemny niebieskozielony
+            invalidate()
         }
     }
 }
