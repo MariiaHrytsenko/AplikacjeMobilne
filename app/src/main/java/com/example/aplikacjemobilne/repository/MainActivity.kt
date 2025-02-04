@@ -2,7 +2,7 @@ package com.example.aplikacjemobilne.repository
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.example.aplikacjemobilne.R
 
@@ -12,50 +12,25 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val buttonTask1 = findViewById<Button>(R.id.buttonTask1)
-        val buttonTask2 = findViewById<Button>(R.id.buttonTask2)
-        val buttonTask3 = findViewById<Button>(R.id.buttonTask3)
-        val buttonAddWordActivity = findViewById<Button>(R.id.buttonAddWordActivity)
-        val buttonAddLanguageActivity = findViewById<Button>(R.id.buttonAddLanguageActivity)
-        val buttonWordList = findViewById<Button>(R.id.buttonWordList)
-        val buttonViewHistory = findViewById<Button>(R.id.buttonViewHistory)
-        val buttonManageLanguages = findViewById<Button>(R.id.buttonManageLanguages)
+        findViewById<View>(R.id.buttonTask).setOnClickListener { openTaskActivity() }
+        findViewById<View>(R.id.buttonDictionary).setOnClickListener { openDictionaryActivity() }
+        findViewById<View>(R.id.buttonViewHistory).setOnClickListener { openResultsHistoryActivity() }
+        findViewById<View>(R.id.buttonSettings).setOnClickListener { openSettingsActivity() }
+    }
 
-        buttonTask1.setOnClickListener {
-            val intent = Intent(this, Task1Activity::class.java)
-            startActivity(intent)
-        }
+    private fun openTaskActivity() {
+        startActivity(Intent(this, TaskActivity::class.java))
+    }
 
-        buttonTask2.setOnClickListener {
-            val intent = Intent(this, Task2Activity::class.java)
-            startActivity(intent)
-        }
+    private fun openDictionaryActivity() {
+        startActivity(Intent(this, DictionaryActivity::class.java))
+    }
 
-        buttonTask3.setOnClickListener {
-            val intent = Intent(this, Task3Activity::class.java)
-            startActivity(intent)
-        }
+    private fun openResultsHistoryActivity() {
+        startActivity(Intent(this, ResultsHistoryActivity::class.java))
+    }
 
-        buttonAddWordActivity.setOnClickListener {
-            val intent = Intent(this, AddWordActivity::class.java)
-            startActivity(intent)
-        }
-
-        buttonAddLanguageActivity.setOnClickListener {
-            val intent = Intent(this, AddLanguageActivity::class.java)
-            startActivity(intent)
-        }
-
-        buttonWordList.setOnClickListener {
-            startActivity(Intent(this, WordListActivity::class.java))
-        }
-
-        buttonViewHistory.setOnClickListener {
-            startActivity(Intent(this, ResultsHistoryActivity::class.java))
-        }
-
-        buttonManageLanguages.setOnClickListener {
-            startActivity(Intent(this, LanguageListActivity::class.java))
-        }
+    private fun openSettingsActivity() {
+        startActivity(Intent(this, SettingsActivity::class.java))
     }
 }

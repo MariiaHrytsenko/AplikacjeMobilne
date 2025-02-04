@@ -31,6 +31,10 @@
         <activity android:name=".repository.ResultsActivity"/>
         <activity android:name=".repository.WordListActivity" />
         <activity android:name=".repository.ResultsHistoryActivity" />
+        <activity android:name=".repository.TaskActivity"/>
+        <activity android:name=".repository.DictionaryActivity"/>
+        <activity android:name=".repository.SettingsActivity"/>
+
         <activity
             android:name=".repository.EditWordActivity"
             android:exported="false" />
