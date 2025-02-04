@@ -24,7 +24,7 @@ class Task3Activity : AppCompatActivity() {
     companion object {
         private const val TAG = "Task3Activity"
         private const val MIN_WORDS_REQUIRED = 4
-        private const val DEFAULT_ROUNDS = 10
+        private const val DEFAULT_ROUNDS = 2
         private const val WORDS_PER_ROUND = 4
     }
 
