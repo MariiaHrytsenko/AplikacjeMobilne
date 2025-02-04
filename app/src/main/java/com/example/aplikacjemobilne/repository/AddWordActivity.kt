@@ -161,37 +161,47 @@ class AddWordActivity : AppCompatActivity() {
             try {
                 // Sprawdź przed zapisem czy słowa nie zostały dodane w międzyczasie
                 val allWords = database.wordDao().getAllWords()
+                val allTranslations = database.translationDao().getAllTranslations()
                 
                 // Sprawdź wszystkie słowa przed zapisem
                 for (translation in translations) {
                     val sourceLanguage = languages.first { it.name == translation.sourceLanguage }
                     val targetLanguage = languages.first { it.name == translation.targetLanguage }
 
-                    // Sprawdź słowo źródłowe
-                    val sourceWordExists = allWords.any { 
-                        it.word.equals(translation.sourceWord, ignoreCase = true) && 
-                        it.languageCode == sourceLanguage.code 
+                    // Sprawdź kombinację w obu kierunkach
+                    val translationExists = allWords.any { existingWord -> 
+                        // Sprawdź kombinację source->target
+                        (existingWord.word.equals(translation.sourceWord, ignoreCase = true) && 
+                        existingWord.languageCode == sourceLanguage.code &&
+                        allTranslations.any { t ->
+                            val otherWordId = if (t.wordId == existingWord.id) t.translatedWordId else if (t.translatedWordId == existingWord.id) t.wordId else null
+                            otherWordId?.let { id ->
+                                allWords.any { w -> 
+                                    w.id == id && 
+                                    w.word.equals(translation.targetWord, ignoreCase = true) && 
+                                    w.languageCode == targetLanguage.code
+                                }
+                            } ?: false
+                        }) ||
+                        // Sprawdź kombinację target->source
+                        (existingWord.word.equals(translation.targetWord, ignoreCase = true) && 
+                        existingWord.languageCode == targetLanguage.code &&
+                        allTranslations.any { t ->
+                            val otherWordId = if (t.wordId == existingWord.id) t.translatedWordId else if (t.translatedWordId == existingWord.id) t.wordId else null
+                            otherWordId?.let { id ->
+                                allWords.any { w -> 
+                                    w.id == id && 
+                                    w.word.equals(translation.sourceWord, ignoreCase = true) && 
+                                    w.languageCode == sourceLanguage.code
+                                }
+                            } ?: false
+                        })
                     }
 
-                    if (sourceWordExists) {
+                    if (translationExists) {
                         withContext(Dispatchers.Main) {
                             Toast.makeText(this@AddWordActivity, 
-                                "Word '${translation.sourceWord}' already exists in ${sourceLanguage.name}!", 
-                                Toast.LENGTH_SHORT).show()
-                        }
-                        return@launch
-                    }
-
-                    // Sprawdź tłumaczenie
-                    val targetWordExists = allWords.any { 
-                        it.word.equals(translation.targetWord, ignoreCase = true) && 
-                        it.languageCode == targetLanguage.code 
-                    }
-
-                    if (targetWordExists) {
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(this@AddWordActivity, 
-                                "Translation '${translation.targetWord}' already exists in ${targetLanguage.name}!", 
+                                "Translation between '${translation.sourceWord}' and '${translation.targetWord}' already exists!", 
                                 Toast.LENGTH_SHORT).show()
                         }
                         return@launch
@@ -230,7 +240,6 @@ class AddWordActivity : AppCompatActivity() {
                     finish()
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Error saving translations", e)
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@AddWordActivity, "Error saving translations", Toast.LENGTH_SHORT).show()
                 }
