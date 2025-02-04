@@ -186,32 +186,25 @@ class Task3Activity : AppCompatActivity() {
         override fun onDraw(canvas: Canvas) {
             super.onDraw(canvas)
             connections.forEach { (source, target) ->
-                // Tablice do przechowywania współrzędnych
                 val sourceLocation = IntArray(2)
                 val targetLocation = IntArray(2)
                 
-                // Pobierz globalne współrzędne dla obu widoków
-                source.getLocationOnScreen(sourceLocation)
-                target.getLocationOnScreen(targetLocation)
+                // Get positions relative to the root window
+                source.getLocationInWindow(sourceLocation)
+                target.getLocationInWindow(targetLocation)
 
-                // Odejmij statusbar height dla poprawnego pozycjonowania
-                val statusBarHeight = getStatusBarHeight()
-                
-                // Oblicz punkty początkowe i końcowe linii
-                val startX = sourceLocation[0] + source.width.toFloat()
-                val startY = (sourceLocation[1] - statusBarHeight) + source.height.toFloat() / 2
-                val endX = targetLocation[0].toFloat()
-                val endY = (targetLocation[1] - statusBarHeight) + target.height.toFloat() / 2
+                // Get DrawingView position
+                val drawingViewLocation = IntArray(2)
+                this.getLocationInWindow(drawingViewLocation)
+
+                // Calculate relative positions
+                val startX = sourceLocation[0] + source.width.toFloat() - drawingViewLocation[0]
+                val startY = sourceLocation[1] + source.height.toFloat() / 2 - drawingViewLocation[1]
+                val endX = targetLocation[0].toFloat() - drawingViewLocation[0]
+                val endY = targetLocation[1] + target.height.toFloat() / 2 - drawingViewLocation[1]
 
                 canvas.drawLine(startX, startY, endX, endY, paint)
             }
-        }
-
-        private fun getStatusBarHeight(): Int {
-            val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
-            return if (resourceId > 0) {
-                resources.getDimensionPixelSize(resourceId)
-            } else 0
         }
 
         override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
